@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${t.tipo} + ' ' + ${t.serie} + '-' + ${t.numero}">Comprobante</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Courier New', monospace; color:#000; background:#eee; }
+        .ticket { width:80mm; background:#fff; margin:10px auto; padding:6mm 4mm; }
+        .center { text-align:center; }
+        .b { font-weight:bold; }
+        .empresa { font-size:13px; font-weight:bold; }
+        .small { font-size:11px; }
+        .tit { font-size:12px; font-weight:bold; margin:6px 0; }
+        hr { border:none; border-top:1px dashed #000; margin:6px 0; }
+        table { width:100%; border-collapse:collapse; font-size:11px; }
+        th, td { padding:1px 0; text-align:left; }
+        td.r, th.r { text-align:right; }
+        td.c, th.c { text-align:center; }
+        .tot td { font-size:12px; }
+        .tot .grande { font-size:14px; font-weight:bold; }
+        .anulado { color:#b00; border:2px solid #b00; text-align:center; font-weight:bold; padding:3px; margin:6px 0; }
+        .acciones { text-align:center; margin:12px; }
+        .acciones button { padding:8px 16px; font-size:13px; cursor:pointer; margin:0 4px; }
+        @media print { body { background:#fff; } .acciones { display:none; } .ticket { margin:0; } }
+    </style>
+</head>
+<body>
+<div class="ticket">
+    <div class="center empresa" th:text="${t.empresa}">HOSPEDAJE</div>
+    <div class="center small" th:text="'RUC ' + ${t.rucEmpresa}">RUC</div>
+    <div class="center small" th:text="${t.direccionEmpresa}">Dir</div>
+    <hr>
+    <div class="center tit" th:text="${t.tipo} + ' ELECTRÓNICA'">BOLETA</div>
+    <div class="center b" th:text="${t.serie} + '-' + ${t.numero}">B001-000001</div>
+    <div class="anulado" th:if="${t.anulado}">*** ANULADO ***</div>
+    <hr>
+    <div class="small" th:text="'Fecha: ' + ${#temporals.format(t.fecha,'dd/MM/yyyy HH:mm')}">Fecha</div>
+    <div class="small" th:text="'Cliente: ' + ${t.cliente}">Cliente</div>
+    <div class="small" th:if="${t.docNumero != null and !t.docNumero.isEmpty()}"
+         th:text="${t.docTipo} + ': ' + ${t.docNumero}">Doc</div>
+    <div class="small" th:if="${t.cajero != null and !t.cajero.isEmpty()}" th:text="'Cajero: ' + ${t.cajero}">Cajero</div>
+    <hr>
+
+    <table th:if="${!t.estadia.isEmpty()}">
+        <thead><tr><th>Estadía</th><th class="c">Noches</th><th class="r">Importe</th></tr></thead>
+        <tbody>
+            <tr th:each="l : ${t.estadia}">
+                <td th:text="${l.descripcion}">Hab</td>
+                <td class="c" th:text="${l.cantidad}">1</td>
+                <td class="r" th:text="${#numbers.formatDecimal(l.importe,1,2)}">0.00</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table th:if="${!t.productos.isEmpty()}" style="margin-top:4px">
+        <thead><tr><th>Producto</th><th class="c">Cant</th><th class="r">Importe</th></tr></thead>
+        <tbody>
+            <tr th:each="l : ${t.productos}">
+                <td th:text="${l.descripcion}">Prod</td>
+                <td class="c" th:text="${l.cantidad}">1</td>
+                <td class="r" th:text="${#numbers.formatDecimal(l.importe,1,2)}">0.00</td>
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+
+    <table class="tot">
+        <tr><td>Op. Gravada</td><td class="r" th:text="'S/ ' + ${#numbers.formatDecimal(t.subtotal,1,2)}">0.00</td></tr>
+        <tr><td>IGV (18%)</td><td class="r" th:text="'S/ ' + ${#numbers.formatDecimal(t.igv,1,2)}">0.00</td></tr>
+        <tr><td class="grande">TOTAL</td><td class="r grande" th:text="'S/ ' + ${#numbers.formatDecimal(t.total,1,2)}">0.00</td></tr>
+    </table>
+    <hr>
+    <div class="small" th:text="'Forma de pago: ' + ${t.formaPago}">Pago</div>
+    <hr>
+    <div class="center small">¡Gracias por su preferencia!</div>
+    <div class="center small">Representación impresa</div>
+</div>
+
+<div class="acciones">
+    <button onclick="window.print()">🖨 Imprimir</button>
+    <button onclick="window.close()">Cerrar</button>
+</div>
+
+<script th:inline="javascript">
+    window.addEventListener('load', function(){ setTimeout(function(){ window.print(); }, 350); });
+</script>
+</body>
+</html>
