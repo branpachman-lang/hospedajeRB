@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habitaciones · Hospedaje RB</title>
+    <!-- CSRF para los fetch POST -->
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <link rel="stylesheet" th:href="@{/css/tokens.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link rel="stylesheet" th:href="@{/css/habitaciones.css}">
+</head>
+<body>
+<div class="app">
+    <div th:replace="~{fragments/layout :: sidebar('habitaciones')}"></div>
+
+    <div class="main">
+        <div th:replace="~{fragments/layout :: topbar('HABITACIONES')}"></div>
+
+        <div class="contenido">
+
+            <!-- Filtros -->
+            <section class="filtros">
+                <div class="filtro">
+                    <label>Tipo de habitación</label>
+                    <select id="f-tipo">
+                        <option value="">Todos</option>
+                        <option th:each="t : ${tipos}" th:value="${t.idTipoHabitacion}" th:text="${t.nombreTipo}"></option>
+                    </select>
+                </div>
+                <div class="filtro">
+                    <label>Estado</label>
+                    <select id="f-estado">
+                        <option value="">Todos</option>
+                        <option th:each="e : ${estados}" th:value="${e.idEstadoHabitacion}" th:text="${e.nombreEstado}"></option>
+                    </select>
+                </div>
+                <div class="filtro filtro--semana">
+                    <label>Semana</label>
+                    <div class="semana-nav">
+                        <button id="sem-prev" type="button">‹</button>
+                        <span id="sem-rango">—</span>
+                        <button id="sem-next" type="button">›</button>
+                        <button id="sem-hoy" type="button" class="hoy">Hoy</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tabs de piso -->
+            <section id="pisos" class="pisos"></section>
+
+            <!-- Cuerpo: lista de habitaciones + calendario -->
+            <section class="hab-grid">
+                <aside id="lista" class="hab-lista"></aside>
+                <div id="cal" class="cal"></div>
+            </section>
+
+        </div>
+    </div>
+</div>
+
+<!-- Estados disponibles para el menu "Cambiar estado" de cada tarjeta -->
+<script th:inline="javascript">
+    window.ESTADOS = /*[[${estados}]]*/ [];
+</script>
+<script th:src="@{/js/habitaciones.js}"></script>
+</body>
+</html>

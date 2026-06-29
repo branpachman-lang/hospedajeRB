@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<!-- ============ HEAD reutilizable ============ -->
+<head th:fragment="head(titulo)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo} + ' · Hospedaje RB'">Hospedaje RB</title>
+    <link rel="stylesheet" th:href="@{/css/tokens.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+
+<!-- ============ TOPBAR ============ -->
+<header th:fragment="topbar(titulo)" class="topbar" th:text="${titulo}">BIENVENIDO</header>
+
+<!-- ============ SIDEBAR ============ -->
+<aside th:fragment="sidebar(activo)" class="sidebar">
+    <div class="sidebar__brand">
+        <img th:src="@{/img/logo.png}" alt="Hospedaje Real Bolognesi" onerror="this.style.display='none'">
+        <span class="sidebar__panel" sec:authorize="hasRole('GERENTE')">Panel Gerencia</span>
+        <span class="sidebar__panel" sec:authorize="hasRole('RECEPCIONISTA')">Panel Recepcionista</span>
+        <span class="sidebar__panel" sec:authorize="hasRole('LIMPIEZA')">Personal de Limpieza</span>
+        <span class="sidebar__panel" sec:authorize="hasRole('MANTENIMIENTO')">Personal de Mantenimiento</span>
+    </div>
+
+    <!-- Menu RECEPCIONISTA -->
+    <nav class="menu" sec:authorize="hasRole('RECEPCIONISTA')">
+        <a th:href="@{/recepcionista}" th:classappend="${activo == 'inicio'} ? 'activo' : ''">
+            <svg class="ico" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9 8h-3v9h-4v-6h-4v6H6v-9H3z"/></svg>
+            <span>Inicio</span>
+            <svg class="ico" th:if="${activo == 'inicio'}" viewBox="0 0 24 24" fill="currentColor"><path d="M9 6l6 6-6 6z"/></svg>
+        </a>
+        <a th:href="@{/recepcionista/habitaciones}" th:classappend="${activo == 'habitaciones'} ? 'activo' : ''">
+            <svg class="ico" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h7v7H4zm9 0h7v7h-7zM4 13h7v7H4zm9 0h7v7h-7z"/></svg>
+            <span>Estado de las Habitaciones</span>
+            <svg class="ico" th:if="${activo == 'habitaciones'}" viewBox="0 0 24 24" fill="currentColor"><path d="M9 6l6 6-6 6z"/></svg>
+        </a>
+        <a th:href="@{/recepcionista/reservas}" th:classappend="${activo == 'reservas'} ? 'activo' : ''">
+            <svg class="ico" viewBox="0 0 24 24" fill="currentColor"><path d="M9 2h6a2 2 0 012 2h1a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h1a2 2 0 012-2zm0 4h6V4H9z"/></svg>
+            <span>Registrar reserva</span>
+            <svg class="ico" th:if="${activo == 'reservas'}" viewBox="0 0 24 24" fill="currentColor"><path d="M9 6l6 6-6 6z"/></svg>
+        </a>
+        <a th:href="@{/recepcionista/venta-producto}"
+           th:classappend="${activo == 'venta-producto'} ? 'activo' : ''"><svg class="ico" viewBox="0 0 24 24" fill="currentColor"><path d="M9 2h6a2 2 0 012 2h1a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h1a2 2 0 012-2zm0 4h6V4H9z"/></svg><span>Registrar venta producto</span></a>
+        <a href="#"><svg class="ico" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l3 5 5 .7-3.6 3.5.9 5-4.3-2.3L8.4 15l.9-5L6 6.7 11 6z"/></svg><span>Registrar Gastos</span></a>
+        <a href="#"><svg class="ico" viewBox="0 0 24 24" fill="currentColor"><path d="M3 7h18v4H3zm0 6h18v4a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Cierre de Caja</span></a>
+    </nav>
+
+    <!-- Menu generico para otros roles -->
+    <nav class="menu" sec:authorize="hasAnyRole('GERENTE','LIMPIEZA','MANTENIMIENTO')">
+        <a th:href="@{/gerente}"        sec:authorize="hasRole('GERENTE')" class="activo"><span>Inicio</span></a>
+        <a th:href="@{/limpieza}"       sec:authorize="hasRole('LIMPIEZA')" class="activo"><span>Inicio</span></a>
+        <a th:href="@{/mantenimiento}"  sec:authorize="hasRole('MANTENIMIENTO')" class="activo"><span>Inicio</span></a>
+        <a th:href="@{/usuarios}"       sec:authorize="hasRole('GERENTE')"><span>Usuarios</span></a>
+        <a th:href="@{/configuracion}"  sec:authorize="hasRole('GERENTE')"><span>Configuracion</span></a>
+    </nav>
+
+    <div class="sidebar__spacer"></div>
+
+    <div class="sidebar__user">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-5 0-9 2.5-9 6v2h18v-2c0-3.5-4-6-9-6z"/></svg>
+        <small>Bienvenido<br><strong sec:authentication="principal.nombreParaMostrar">usuario</strong></small>
+    </div>
+    <form th:action="@{/logout}" method="post">
+        <button class="btn--logout" type="submit">Cerrar Sesion</button>
+    </form>
+</aside>
+
+</body>
+</html>

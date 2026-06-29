@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso · Hospedaje Real Bolognesi</title>
+    <link rel="stylesheet" th:href="@{/css/tokens.css}">
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+</head>
+<body class="login-page">
+
+<div class="login-panel">
+
+    <!-- Columna izquierda: logo -->
+    <div class="login-brand">
+        <img th:src="@{/img/logo.png}" alt="Hospedaje Real Bolognesi"
+             onerror="this.style.display='none'">
+    </div>
+
+    <!-- Columna derecha: tarjeta del formulario -->
+    <div class="login-card">
+        <div class="login-card__header">PANEL DE CONTROL</div>
+        <h1>Bienvenido</h1>
+        <p class="login-card__sub">Ingrese sus credenciales para acceder al sistema.</p>
+
+        <div th:if="${errorTipo == 'bloqueado'}" class="alert alert--error" style="margin-bottom:16px">
+            Cuenta bloqueada temporalmente por intentos fallidos. Intenta de nuevo en unos minutos.
+        </div>
+        <div th:if="${errorTipo == 'inactivo'}" class="alert alert--error" style="margin-bottom:16px">
+            Tu cuenta esta inactiva. Contacta al gerente.
+        </div>
+        <div th:if="${expirada}" class="alert alert--info" style="margin-bottom:16px">
+            Tu sesion expiro por inactividad. Vuelve a ingresar.
+        </div>
+        <div th:if="${logout}" class="alert alert--exito" style="margin-bottom:16px">
+            Cerraste sesion correctamente.
+        </div>
+        <div th:if="${reset}" class="alert alert--exito" style="margin-bottom:16px">
+            Tu contrasena se actualizo. Ya puedes iniciar sesion.
+        </div>
+        <div th:if="${passwordCambiado}" class="alert alert--exito" style="margin-bottom:16px">
+            Contrasena actualizada. Inicia sesion con tu nueva contrasena.
+        </div>
+
+        <div th:with="cred=${errorTipo == 'credenciales'}">
+            <form th:action="@{/login}" method="post">
+                <div class="campo" th:classappend="${cred} ? 'has-error' : ''">
+                    <label class="campo__label" for="username">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-5 0-9 2.5-9 6v2h18v-2c0-3.5-4-6-9-6z"/></svg>
+                        Usuario o Correo Electronico
+                    </label>
+                    <div class="campo__input">
+                        <input type="text" id="username" name="username" placeholder="ejem_123" required autofocus>
+                    </div>
+                    <span class="campo__error">Usuario o contrasena incorrectos.</span>
+                </div>
+
+                <div class="campo" th:classappend="${cred} ? 'has-error' : ''">
+                    <label class="campo__label" for="password">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a5 5 0 00-5 5v3H6a2 2 0 00-2 2v9a2 2 0 002 2h12a2 2 0 002-2v-9a2 2 0 00-2-2h-1V6a5 5 0 00-5-5zm-3 8V6a3 3 0 016 0v3H9z"/></svg>
+                        Contrasena
+                    </label>
+                    <div class="campo__input">
+                        <input type="password" id="password" name="password" placeholder="••••••••" required>
+                        <button type="button" class="campo__toggle" data-toggle="password" aria-label="Mostrar contrasena">&#128065;</button>
+                    </div>
+                    <span class="campo__error">Verifica tus datos e intenta nuevamente.</span>
+                </div>
+
+                <div class="login-row">
+                    <label><input type="checkbox" name="remember-me"> Recordarme</label>
+                    <a th:href="@{/recuperar}">¿Olvidaste tu contrasena?</a>
+                </div>
+
+                <button type="submit" class="btn btn--primario">Ingresar &#8594;</button>
+            </form>
+        </div>
+
+        <hr class="login-card__divider">
+        <div class="login-card__seguro">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l9 4v6c0 5-3.8 9.7-9 11-5.2-1.3-9-6-9-11V5l9-4zm-1 14l6-6-1.4-1.4L11 12.2 8.4 9.6 7 11l4 4z"/></svg>
+            CONEXION SEGURA
+        </div>
+        <p class="login-card__soporte">
+            ¿Problemas tecnicos? Contacte al <a th:href="@{/recuperar}">Soporte de IT</a>
+        </p>
+    </div>
+</div>
+
+<script th:src="@{/js/login.js}"></script>
+</body>
+</html>

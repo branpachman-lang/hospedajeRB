@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar venta - Hospedaje RB</title>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <link rel="stylesheet" th:href="@{/css/tokens.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link rel="stylesheet" th:href="@{/css/venta-producto.css}">
+</head>
+<body>
+<div class="app">
+    <div th:replace="~{fragments/layout :: sidebar('venta-producto')}"></div>
+
+    <div class="main">
+        <div th:replace="~{fragments/layout :: topbar('REGISTRAR VENTA')}"></div>
+
+        <main class="venta">
+            <section class="venta__workspace">
+                <section class="venta__cliente card-venta">
+                    <div class="cliente-search">
+                        <div class="campo-venta">
+                            <label for="buscar-reserva">Asignar a Habitacion</label>
+                            <div class="input-icon">
+                                <span class="search-mark" aria-hidden="true"></span>
+                                <input id="buscar-reserva" type="search" placeholder="Ej: 304, RSV-001, cliente...">
+                            </div>
+                        </div>
+                        <span class="separador">o</span>
+                        <button id="btn-cliente-externo" class="btn-cliente activo" type="button">Cliente Externo</button>
+                    </div>
+                    <div id="resultados-reserva" class="resultados-reserva" hidden></div>
+                    <div id="reserva-seleccionada" class="reserva-seleccionada" hidden></div>
+                </section>
+
+                <section class="venta__tabs" id="categorias">
+                    <button class="tab-categoria activo" type="button" data-id="">Todos</button>
+                    <button class="tab-categoria" th:each="c : ${categorias}" type="button"
+                            th:data-id="${c.idCategoria}" th:text="${c.nombreCategoria}">Categoria</button>
+                </section>
+
+                <section class="catalogo card-venta">
+                    <div class="catalogo__head">
+                        <div>
+                            <h2>Catalogo de Productos</h2>
+                            <p>Productos activos registrados en la tabla producto.</p>
+                        </div>
+                        <div class="input-icon input-icon--compact">
+                            <input id="buscar-producto" type="search" placeholder="Buscar producto...">
+                            <span class="search-mark" aria-hidden="true"></span>
+                        </div>
+                    </div>
+                    <div id="productos" class="productos-grid"></div>
+                    <div id="productos-vacio" class="empty-state" hidden>
+                        No hay productos disponibles. Ejecute el archivo db/seed_venta_producto.sql para cargar productos de prueba.
+                    </div>
+                </section>
+            </section>
+
+            <aside class="carrito">
+                <header class="carrito__head">
+                    <div>
+                        <span id="venta-contexto" class="chip-contexto">VENTA DIRECTA</span>
+                        <h2 id="cliente-titulo">Cliente Externo (Generico)</h2>
+                        <p id="cliente-subtitulo">Documento: 00000000</p>
+                    </div>
+                    <span aria-hidden="true" class="carrito-icon">CART</span>
+                </header>
+
+                <section class="carrito__body">
+                    <div class="carrito-resumen">
+                        <strong>Resumen de Carrito</strong>
+                        <span id="cart-count">0 items</span>
+                    </div>
+                    <div id="cart-items" class="cart-items"></div>
+                    <div id="cart-empty" class="cart-empty">
+                        <div class="bag" aria-hidden="true">0</div>
+                        <p>Tu carrito esta vacio</p>
+                    </div>
+                </section>
+
+                <footer class="carrito__footer">
+                    <div id="stock-alert" class="stock-alert" hidden>
+                        <strong>No es posible procesar</strong>
+                        <span>Hay cantidades mayores al stock disponible. Ajuste el pedido.</span>
+                    </div>
+                    <div class="totales">
+                        <span>Subtotal</span><strong id="subtotal">S/ 0.00</strong>
+                        <span>IGV (18%)</span><strong id="igv">S/ 0.00</strong>
+                        <span class="total-label">TOTAL</span><strong id="total" class="total">S/ 0.00</strong>
+                    </div>
+                    <button id="btn-cargo" class="btn-secundario" type="button" disabled>Cargo a Habitacion</button>
+                    <button id="btn-finalizar" class="btn-finalizar" type="button" disabled>Finalizar Venta</button>
+                    <button id="btn-cancelar" class="btn-cancelar" type="button">Cancelar Operacion</button>
+                </footer>
+            </aside>
+        </main>
+    </div>
+</div>
+
+<div id="modal-exito" class="modal-venta" hidden>
+    <section class="modal-card-venta">
+        <div class="modal-left">
+            <div class="check-ok">&#10003;</div>
+            <h2>Venta Registrada con Exito</h2>
+            <p>La transaccion fue procesada y el comprobante electronico fue generado.</p>
+            <div id="mensaje-inventario" class="inventory-msg">Inventario actualizado</div>
+            <button id="btn-imprimir" class="btn-finalizar" type="button">Imprimir Comprobante (Ticket)</button>
+            <button id="btn-correo" class="btn-outline" type="button">Enviar por Correo Electronico</button>
+            <button id="btn-nueva-venta" class="btn-link" type="button">Nueva Venta / Volver al Dashboard</button>
+        </div>
+        <div class="modal-right">
+            <span class="preview-title">Vista Previa del Comprobante</span>
+            <article id="ticket" class="ticket"></article>
+        </div>
+    </section>
+</div>
+
+<script th:src="@{/js/venta-producto.js}"></script>
+</body>
+</html>

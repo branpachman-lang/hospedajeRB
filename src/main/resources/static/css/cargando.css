@@ -1,0 +1,44 @@
+/* Pantalla de carga intermedia tras el login */
+.carga-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-4);
+    background: linear-gradient(rgba(34, 32, 120, .92), rgba(28, 26, 100, .96)), var(--c-primario);
+    color: #fff;
+    text-align: center;
+}
+
+.carga-page img {
+    max-width: 180px;
+    width: 60%;
+    height: auto;
+    opacity: .95
+}
+
+.spinner {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: 5px solid rgba(255, 255, 255, .25);
+    border-top-color: #fff;
+    animation: girar .9s linear infinite;
+}
+
+@keyframes girar {
+    to {
+        transform: rotate(360deg)
+    }
+}
+
+.carga-texto {
+    font-size: var(--fs-lg);
+    font-weight: 600
+}
+
+.carga-sub {
+    font-size: var(--fs-sm);
+    opacity: .8
+}

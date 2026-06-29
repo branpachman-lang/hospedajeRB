@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Reserva · Hospedaje RB</title>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <link rel="stylesheet" th:href="@{/css/tokens.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link rel="stylesheet" th:href="@{/css/reservas.css}">
+</head>
+<body>
+<div class="app">
+    <div th:replace="~{fragments/layout :: sidebar('reservas')}"></div>
+    <div class="main">
+        <div th:replace="~{fragments/layout :: topbar('REGISTRAR RESERVA')}"></div>
+        <div class="contenido">
+
+            <a class="btn-volver" th:href="@{/recepcionista/reservas}">← Regresar</a>
+
+            <!-- Datos del Cliente -->
+            <section class="card">
+                <h2 class="seccion">Datos del Cliente</h2>
+                <div class="form-grid">
+                    <div class="campo2"><label>Nombres</label><input id="cli-nombres" placeholder="Ej. José Pepe"><small class="err" id="e-cli-nombres"></small></div>
+                    <div class="campo2"><label>Apellidos</label><input id="cli-apellidos" placeholder="Ej. Pérez del Alva"><small class="err" id="e-cli-apellidos"></small></div>
+                    <div class="campo2"><label>Fecha de Nacimiento</label><input id="cli-fnac" type="date"><small class="err" id="e-cli-fnac"></small></div>
+                    <div class="campo2"><label>Dirección</label><input id="cli-direccion" placeholder="Ej. Av. Las flores Mz. Z Lt. 20"></div>
+                    <div class="campo2"><label>Tipo Documento</label>
+                        <select id="cli-tipodoc">
+                            <option th:each="td : ${tiposDocumento}" th:value="${td.idTipoDocumento}" th:text="${td.nombreDocumento}"></option>
+                        </select>
+                    </div>
+                    <div class="campo2"><label>N° Documento</label>
+                        <div class="con-boton">
+                            <input id="cli-numdoc" maxlength="8" inputmode="numeric" placeholder="Ej. 65498732">
+                            <button type="button" id="btn-buscar-cli" title="Buscar">🔍</button>
+                        </div>
+                        <small class="err" id="e-cli-numdoc"></small>
+                    </div>
+                    <div class="campo2"><label>Correo Electrónico</label><input id="cli-correo" placeholder="Ej. abcdef@gmail.com"><small class="err" id="e-cli-correo"></small></div>
+                    <div class="campo2"><label>N° Teléfono</label><input id="cli-telefono" maxlength="9" inputmode="numeric" placeholder="Ej. 965753852"><small class="err" id="e-cli-telefono"></small></div>
+                </div>
+            </section>
+
+            <!-- Habitaciones (render por JS) -->
+            <div id="habitaciones"></div>
+
+            <!-- Acciones -->
+            <div class="acciones-form">
+                <button type="button" id="btn-guardar" class="btn-verde">✔ Agregar Reserva</button>
+                <a class="btn-rojo" th:href="@{/recepcionista/reservas}">✖ Cancelar Reserva</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Datos del Huésped -->
+<div id="modal" class="modal-bg" style="display:none">
+    <div class="modal-card">
+        <h2 class="seccion" style="text-align:center">Datos del Huésped</h2>
+        <div class="form-grid">
+            <div class="campo2"><label>Nombres</label><input id="hu-nombres" placeholder="Ej. José Pepe"><small class="err" id="e-hu-nombres"></small></div>
+            <div class="campo2"><label>Apellidos</label><input id="hu-apellidos" placeholder="Ej. Pérez del Alva"><small class="err" id="e-hu-apellidos"></small></div>
+            <div class="campo2"><label>Fecha de Nacimiento</label><input id="hu-fnac" type="date"><small class="err" id="e-hu-fnac"></small></div>
+            <div class="campo2"><label>Dirección</label><input id="hu-direccion" placeholder="Ej. Av. Las flores Mz. Z Lt. 20"></div>
+            <div class="campo2"><label>Tipo Documento</label>
+                <select id="hu-tipodoc">
+                    <option th:each="td : ${tiposDocumento}" th:value="${td.idTipoDocumento}" th:text="${td.nombreDocumento}"></option>
+                </select>
+            </div>
+            <div class="campo2"><label>N° Documento</label><input id="hu-numdoc" maxlength="8" inputmode="numeric" placeholder="Ej. 65498732"><small class="err" id="e-hu-numdoc"></small></div>
+            <div class="campo2"><label>Correo Electrónico</label><input id="hu-correo" placeholder="Ej. abcdef@gmail.com"><small class="err" id="e-hu-correo"></small></div>
+            <div class="campo2"><label>N° Teléfono</label><input id="hu-telefono" maxlength="9" inputmode="numeric" placeholder="Ej. 965753852"><small class="err" id="e-hu-telefono"></small></div>
+        </div>
+        <div style="text-align:center;margin-top:18px;display:flex;gap:14px;justify-content:center">
+            <button type="button" id="modal-agregar" class="btn-verde">✔ Agregar</button>
+            <button type="button" id="modal-cancelar" class="btn-rojo">✖ Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    window.TIPOS_DOC   = /*[[${tiposDocumento}]]*/ [];
+    window.CODIGO_EDIT = /*[[${codigoEditar}]]*/ "";
+</script>
+<script th:src="@{/js/reserva-form.js}"></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Reservas · Hospedaje RB</title>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <link rel="stylesheet" th:href="@{/css/tokens.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <link rel="stylesheet" th:href="@{/css/reservas.css}">
+</head>
+<body>
+<div class="app">
+    <div th:replace="~{fragments/layout :: sidebar('reservas')}"></div>
+    <div class="main">
+        <div th:replace="~{fragments/layout :: topbar('Lista de Reservas')}"></div>
+        <div class="contenido">
+
+            <section class="filtros">
+                <div class="filtro">
+                    <label>Filtrar por estado</label>
+                    <select id="f-estado">
+                        <option value="">Todas</option>
+                        <option value="Check-in Pendiente">Check-in Pendiente</option>
+                        <option value="Check-out Pendiente">Check-out Pendiente</option>
+                        <option value="Confirmada">Confirmada</option>
+                    </select>
+                </div>
+            </section>
+
+            <section class="card">
+                <table class="tabla-reservas">
+                    <thead>
+                        <tr><th>N° Reserva</th><th>Descripción</th><th>Acciones</th></tr>
+                    </thead>
+                    <tbody id="tbody"></tbody>
+                </table>
+                <div id="vacio" class="cal__vacio" style="display:none">No hay reservas.</div>
+            </section>
+
+            <div style="text-align:center;margin-top:24px">
+                <a class="btn-verde" th:href="@{/recepcionista/reservas/nueva}">＋ Agregar Nueva Reserva</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/reservas-lista.js}"></script>
+</body>
+</html>

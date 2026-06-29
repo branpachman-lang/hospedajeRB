@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Inicio')}"></head>
+<body>
+<div class="app">
+    <div th:replace="~{fragments/layout :: sidebar('inicio')}"></div>
+    <div class="main">
+        <div th:replace="~{fragments/layout :: topbar('BIENVENIDO A “REAL BOLOGNESI MANAGMENT SUITE”')}"></div>
+        <div class="contenido">
+            <section class="card">
+                <h2 style="text-align:center;color:#1f2a5c">Panel de Gerencia</h2>
+                <p style="text-align:center" th:text="'Bienvenido, ' + ${nombre}">Bienvenido</p>
+                <p style="text-align:center;color:#6b7280">Pantalla en construcción.</p>
+            </section>
+        </div>
+    </div>
+</div>
+</body>
+</html>

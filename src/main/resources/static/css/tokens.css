@@ -1,0 +1,118 @@
+/* ====================================================================
+   Design tokens - Hospedaje Real Bolognesi
+   Ajusta estos valores leyendo tus estilos en Figma (Dev Mode).
+   ==================================================================== */
+:root {
+    /* Marca (tomados del prototipo) */
+    --c-primario: #2b2a8c; /* indigo del boton "Ingresar" */
+    --c-primario-oscuro: #1f1e6b;
+    --c-oro: #b8901f; /* dorado de "PANEL DE CONTROL" */
+    --c-navy-texto: #1f2a5c; /* azul de los titulos */
+
+    /* Superficies */
+    --c-fondo: #f4f6fb;
+    --c-superficie: #ffffff;
+    --c-panel: #eef0f7; /* panel claro detras de la tarjeta */
+    --c-texto: #1f2430;
+    --c-texto-suave: #6b7280;
+    --c-borde: #e3e7ef;
+    --c-input: #f3f4f8;
+
+    /* Codigo de colores estandar (RNF07 / RNF12) */
+    --c-exito: #1f9d55; /* verde  - exito / disponible */
+    --c-error: #e3342f; /* rojo   - error / ocupada */
+    --c-aviso: #f6993f; /* naranja- advertencia */
+    --c-info: #3490dc; /* azul   - informacion */
+
+    /* Tipografia */
+    --fuente: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --fs-sm: 13px;
+    --fs-base: 15px;
+    --fs-lg: 18px;
+    --fs-xl: 22px;
+    --fs-2xl: 28px;
+
+    /* Espaciado / formas */
+    --sp-1: 4px;
+    --sp-2: 8px;
+    --sp-3: 16px;
+    --sp-4: 24px;
+    --sp-5: 32px;
+    --radio: 10px;
+    --radio-lg: 18px;
+    --sombra: 0 10px 30px rgba(20, 20, 60, .18);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0
+}
+
+html, body {
+    height: 100%
+}
+
+body {
+    font-family: var(--fuente);
+    font-size: var(--fs-base);
+    color: var(--c-texto);
+    background: var(--c-fondo)
+}
+
+a {
+    color: var(--c-primario);
+    text-decoration: none
+}
+
+a:hover {
+    text-decoration: underline
+}
+
+/* Botones reutilizables */
+.btn {
+    cursor: pointer;
+    border: none;
+    border-radius: var(--radio);
+    padding: 13px 18px;
+    font-size: var(--fs-base);
+    font-weight: 600;
+    font-family: inherit
+}
+
+.btn--primario {
+    background: var(--c-primario);
+    color: #fff;
+    width: 100%
+}
+
+.btn--primario:hover {
+    background: var(--c-primario-oscuro)
+}
+
+.btn--ghost {
+    background: transparent;
+    color: var(--c-navy-texto)
+}
+
+/* Alertas (codigo de colores) */
+.alert {
+    padding: 10px 12px;
+    border-radius: var(--radio);
+    font-size: var(--fs-sm)
+}
+
+.alert--error {
+    background: #fdecec;
+    color: var(--c-error)
+}
+
+.alert--info {
+    background: #e7f1fb;
+    color: var(--c-info)
+}
+
+.alert--exito {
+    background: #e6f6ee;
+    color: var(--c-exito)
+}

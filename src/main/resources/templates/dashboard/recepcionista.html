@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Inicio')}"></head>
+<body>
+<div class="app">
+    <div th:replace="~{fragments/layout :: sidebar('inicio')}"></div>
+    <div class="main">
+        <div th:replace="~{fragments/layout :: topbar('BIENVENIDO A “REAL BOLOGNESI MANAGMENT SUITE”')}"></div>
+        <div class="contenido">
+
+            <section class="card desc">
+                <div class="desc__txt">
+                    <h2>Descripción</h2>
+                    <p>Ubicado en el corazón de Huaraz, este hospedaje le ofrece una base
+                       ideal para explorar los andes.</p>
+                </div>
+                <img class="desc__img" th:src="@{/img/huaraz.jpg}"
+                     alt="Huaraz" onerror="this.style.display='none'">
+            </section>
+
+            <section class="card tres">
+                <div class="bloque">
+                    <div class="bloque__titulo">Nuestra Visión:</div>
+                    <p>Convertirnos en el hospedaje líder en la preferencia de los visitantes
+                       en Huaraz, destacando en redes sociales por compartir la cultura, la
+                       belleza andina y el bienestar de quienes nos eligen.</p>
+                </div>
+                <div class="bloque">
+                    <div class="bloque__titulo">Nuestra Misión:</div>
+                    <p>Garantizar una estancia segura, cómoda y estratégica en pleno centro de
+                       Huaraz, facilitando a nuestros huéspedes una experiencia de hospitalidad
+                       cálida y eficiente que los haga sentir siempre en casa.</p>
+                </div>
+                <div class="bloque">
+                    <div class="bloque__titulo">Servicios Clave</div>
+                    <ul class="servicios">
+                        <li><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 18a2 2 0 110 4 2 2 0 010-4zM2 8.8C7.5 4 16.5 4 22 8.8l-2 2.3C15.6 7.4 8.4 7.4 4 11.1zm3.5 4C9 9.8 15 9.8 18.5 12.8l-2 2.3c-2.4-2-6.6-2-9 0z"/></svg><span>Wi-Fi Rápido</span></li>
+                        <li><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a2 2 0 012 2v2h2a4 4 0 014 4v2H4v-2a4 4 0 014-4h2V4a2 2 0 012-2zM5 14h1v3H5zm4 0h1v4H9zm4 0h1v3h-1zm4 0h1v4h-1z"/></svg><span>Agua Caliente</span></li>
+                        <li><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 18a2 2 0 110 4 2 2 0 010-4zm10 0a2 2 0 110 4 2 2 0 010-4zM1 2h3l2.6 12.6A2 2 0 008.5 16H18a2 2 0 002-1.6L22 7H6"/></svg><span>Tienda Propia</span></li>
+                        <li><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 3a4 4 0 014 4v8H3V7a4 4 0 014-4zm10 0a3 3 0 013 3v15h-2v-6h-2V6a3 3 0 011-3z"/></svg><span>Habitaciones con baño propio</span></li>
+                    </ul>
+                </div>
+            </section>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

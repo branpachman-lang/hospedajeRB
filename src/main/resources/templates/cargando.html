@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cargando · Hospedaje RB</title>
+    <link rel="stylesheet" th:href="@{/css/tokens.css}">
+    <link rel="stylesheet" th:href="@{/css/cargando.css}">
+</head>
+<body class="carga-page">
+    <img th:src="@{/img/logo.png}" alt="Hospedaje Real Bolognesi" onerror="this.style.display='none'">
+    <div class="spinner"></div>
+    <div class="carga-texto" th:text="'Hola, ' + ${nombre}">Hola</div>
+    <div class="carga-sub">Preparando tu espacio de trabajo...</div>
+
+    <script th:inline="javascript">
+      // El destino se inyecta directo desde el servidor (evita URLs vacias / loops).
+      var destino = /*[[${destino}]]*/ '/login';
+      if (!destino || destino === '' || destino === '/cargando') {
+        destino = '/login';
+      }
+      setTimeout(function () { window.location.replace(destino); }, 1200); // carga corta
+    </script>
+</body>
+</html>

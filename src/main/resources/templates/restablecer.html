@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restablecer contrasena · Hospedaje RB</title>
+    <link rel="stylesheet" th:href="@{/css/tokens.css}">
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+</head>
+<body class="login-page">
+<div class="login-panel" style="max-width:480px;grid-template-columns:1fr">
+    <div class="login-card">
+        <div class="login-card__header">RECUPERAR ACCESO</div>
+
+        <!-- Token invalido o expirado -->
+        <div th:unless="${tokenValido}">
+            <h1>Enlace no valido</h1>
+            <p class="login-card__sub">
+                El enlace expiro o ya fue usado. Solicita uno nuevo.
+            </p>
+            <a th:href="@{/recuperar}" class="btn btn--primario" style="display:block;text-align:center;text-decoration:none">
+                Solicitar nuevo enlace
+            </a>
+        </div>
+
+        <!-- Token valido: formulario de nueva contrasena -->
+        <div th:if="${tokenValido}">
+            <h1>Nueva contrasena</h1>
+            <p class="login-card__sub">Define una contrasena segura para tu cuenta.</p>
+
+            <div th:if="${error}" class="alert alert--error" style="margin-bottom:16px" th:text="${error}"></div>
+
+            <form th:action="@{/restablecer}" method="post">
+                <input type="hidden" name="token" th:value="${token}">
+                <div class="campo">
+                    <label class="campo__label" for="nueva">Nueva contrasena</label>
+                    <div class="campo__input">
+                        <input type="password" id="nueva" name="nueva" required
+                               placeholder="Min. 8, con letras y numeros">
+                    </div>
+                </div>
+                <div class="campo">
+                    <label class="campo__label" for="confirmacion">Confirmar contrasena</label>
+                    <div class="campo__input">
+                        <input type="password" id="confirmacion" name="confirmacion" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn--primario">Guardar contrasena</button>
+            </form>
+        </div>
+
+        <hr class="login-card__divider">
+        <p class="login-card__soporte"><a th:href="@{/login}">&#8592; Volver al inicio de sesion</a></p>
+    </div>
+</div>
+</body>
+</html>
