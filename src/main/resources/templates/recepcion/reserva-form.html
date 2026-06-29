@@ -10,6 +10,7 @@
     <link rel="stylesheet" th:href="@{/css/tokens.css}">
     <link rel="stylesheet" th:href="@{/css/app.css}">
     <link rel="stylesheet" th:href="@{/css/reservas.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
 </head>
 <body>
 <div class="app">
@@ -26,7 +27,7 @@
                 <div class="form-grid">
                     <div class="campo2"><label>Nombres</label><input id="cli-nombres" placeholder="Ej. José Pepe"><small class="err" id="e-cli-nombres"></small></div>
                     <div class="campo2"><label>Apellidos</label><input id="cli-apellidos" placeholder="Ej. Pérez del Alva"><small class="err" id="e-cli-apellidos"></small></div>
-                    <div class="campo2"><label>Fecha de Nacimiento</label><input id="cli-fnac" type="date"><small class="err" id="e-cli-fnac"></small></div>
+                    <div class="campo2"><label>Fecha de Nacimiento</label><input id="cli-fnac" type="text" inputmode="numeric" maxlength="10" placeholder="DD/MM/AAAA"><small class="err" id="e-cli-fnac"></small></div>
                     <div class="campo2"><label>Dirección</label><input id="cli-direccion" placeholder="Ej. Av. Las flores Mz. Z Lt. 20"></div>
                     <div class="campo2"><label>Tipo Documento</label>
                         <select id="cli-tipodoc">
@@ -65,7 +66,7 @@
         <div class="form-grid">
             <div class="campo2"><label>Nombres</label><input id="hu-nombres" placeholder="Ej. José Pepe"><small class="err" id="e-hu-nombres"></small></div>
             <div class="campo2"><label>Apellidos</label><input id="hu-apellidos" placeholder="Ej. Pérez del Alva"><small class="err" id="e-hu-apellidos"></small></div>
-            <div class="campo2"><label>Fecha de Nacimiento</label><input id="hu-fnac" type="date"><small class="err" id="e-hu-fnac"></small></div>
+            <div class="campo2"><label>Fecha de Nacimiento</label><input id="hu-fnac" type="text" inputmode="numeric" maxlength="10" placeholder="DD/MM/AAAA"><small class="err" id="e-hu-fnac"></small></div>
             <div class="campo2"><label>Dirección</label><input id="hu-direccion" placeholder="Ej. Av. Las flores Mz. Z Lt. 20"></div>
             <div class="campo2"><label>Tipo Documento</label>
                 <select id="hu-tipodoc">
@@ -87,6 +88,8 @@
     window.TIPOS_DOC   = /*[[${tiposDocumento}]]*/ [];
     window.CODIGO_EDIT = /*[[${codigoEditar}]]*/ "";
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/es.js"></script>
 <script th:src="@{/js/reserva-form.js}"></script>
 </body>
 </html>

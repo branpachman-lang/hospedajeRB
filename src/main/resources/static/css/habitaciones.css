@@ -3,332 +3,76 @@
    ==================================================================== */
 
 /* Colores de estado (RNF07/RNF12) */
-.c-verde {
-    background: #1f9d55;
-    color: #fff
-}
-
-.c-naranja {
-    background: #f6993f;
-    color: #fff
-}
-
-.c-rojo {
-    background: #e3342f;
-    color: #fff
-}
-
-.c-amarillo {
-    background: #f2c200;
-    color: #3a3a00
-}
-
-.c-gris {
-    background: #8a93a6;
-    color: #fff
-}
-
-.c-azul {
-    background: #2b6cb0;
-    color: #fff
-}
-
-.c-morado {
-    background: #7c3aed;
-    color: #fff
-}
+.c-verde{background:#1f9d55;color:#fff}
+.c-naranja{background:#f6993f;color:#fff}
+.c-rojo{background:#e3342f;color:#fff}
+.c-amarillo{background:#f2c200;color:#3a3a00}
+.c-gris{background:#8a93a6;color:#fff}
+.c-azul{background:#2b6cb0;color:#fff}
+.c-morado{background:#7c3aed;color:#fff}
 
 /* ---------- Filtros ---------- */
-.filtros {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--sp-4);
-    align-items: flex-end;
-    background: #fff;
-    border-radius: 14px;
-    box-shadow: var(--sombra);
-    padding: var(--sp-3) var(--sp-4)
-}
-
-.filtro {
-    display: flex;
-    flex-direction: column;
-    gap: 6px
-}
-
-.filtro label {
-    font-size: var(--fs-sm);
-    color: var(--c-texto-suave);
-    font-weight: 600
-}
-
-.filtro select {
-    padding: 9px 12px;
-    border: 1px solid var(--c-borde);
-    border-radius: 10px;
-    font-size: var(--fs-base);
-    background: #fff;
-    min-width: 190px
-}
-
-.filtro--semana {
-    margin-left: auto
-}
-
-.semana-nav {
-    display: flex;
-    align-items: center;
-    gap: 10px
-}
-
-.semana-nav button {
-    border: 1px solid var(--c-borde);
-    background: #fff;
-    border-radius: 8px;
-    width: 34px;
-    height: 34px;
-    cursor: pointer;
-    font-size: 18px
-}
-
-.semana-nav button.hoy {
-    width: auto;
-    padding: 0 12px;
-    font-size: var(--fs-sm);
-    font-weight: 600
-}
-
-.semana-nav #sem-rango {
-    font-weight: 600;
-    color: var(--c-navy-texto);
-    min-width: 190px;
-    text-align: center
-}
+.filtros{display:flex;flex-wrap:wrap;gap:var(--sp-4);align-items:flex-end;
+  background:#fff;border-radius:14px;box-shadow:var(--sombra);padding:var(--sp-3) var(--sp-4)}
+.filtro{display:flex;flex-direction:column;gap:6px}
+.filtro label{font-size:var(--fs-sm);color:var(--c-texto-suave);font-weight:600}
+.filtro select{padding:9px 12px;border:1px solid var(--c-borde);border-radius:10px;
+  font-size:var(--fs-base);background:#fff;min-width:190px}
+.filtro--semana{margin-left:auto}
+.semana-nav{display:flex;align-items:center;gap:10px}
+.semana-nav button{border:1px solid var(--c-borde);background:#fff;border-radius:8px;
+  width:34px;height:34px;cursor:pointer;font-size:18px}
+.semana-nav button.hoy{width:auto;padding:0 12px;font-size:var(--fs-sm);font-weight:600}
+.semana-nav #sem-rango{font-weight:600;color:var(--c-navy-texto);min-width:190px;text-align:center}
 
 /* ---------- Tabs de piso ---------- */
-.pisos {
-    display: flex;
-    gap: var(--sp-3);
-    flex-wrap: wrap
-}
-
-.piso-tab {
-    background: #fff;
-    border: none;
-    border-radius: 12px;
-    box-shadow: var(--sombra);
-    padding: 12px 18px;
-    cursor: pointer;
-    text-align: center;
-    min-width: 120px
-}
-
-.piso-tab .num {
-    font-weight: 700;
-    color: var(--c-navy-texto)
-}
-
-.piso-tab .cnt {
-    font-size: var(--fs-sm);
-    color: var(--c-texto-suave)
-}
-
-.piso-tab.activo {
-    background: var(--c-primario)
-}
-
-.piso-tab.activo .num, .piso-tab.activo .cnt {
-    color: #fff
-}
+.pisos{display:flex;gap:var(--sp-3);flex-wrap:wrap}
+.piso-tab{background:#fff;border:none;border-radius:12px;box-shadow:var(--sombra);
+  padding:12px 18px;cursor:pointer;text-align:center;min-width:120px}
+.piso-tab .num{font-weight:700;color:var(--c-navy-texto)}
+.piso-tab .cnt{font-size:var(--fs-sm);color:var(--c-texto-suave)}
+.piso-tab.activo{background:var(--c-primario)}
+.piso-tab.activo .num,.piso-tab.activo .cnt{color:#fff}
 
 /* ---------- Cuerpo: lista + calendario ---------- */
-.hab-grid {
-    display: grid;
-    grid-template-columns:360px 1fr;
-    gap: var(--sp-4);
-    align-items: start
-}
-
-@media (max-width: 1100px) {
-    .hab-grid {
-        grid-template-columns:1fr
-    }
-}
+.hab-grid{display:grid;grid-template-columns:360px 1fr;gap:var(--sp-4);align-items:start}
+@media (max-width:1100px){ .hab-grid{grid-template-columns:1fr} }
 
 /* Lista de habitaciones (tarjetas) */
-.hab-lista {
-    display: flex;
-    flex-direction: column;
-    gap: var(--sp-3);
-    max-height: 70vh;
-    overflow: auto
-}
-
-.hab-card {
-    background: #fff;
-    border-radius: 14px;
-    box-shadow: var(--sombra);
-    padding: var(--sp-3)
-}
-
-.hab-card h3 {
-    color: var(--c-navy-texto);
-    margin-bottom: 2px
-}
-
-.hab-card .sub {
-    font-size: var(--fs-sm);
-    color: var(--c-texto-suave);
-    font-style: italic
-}
-
-.hab-card .precio {
-    margin: 8px 0 4px;
-    font-weight: 700
-}
-
-.hab-card .desc {
-    font-size: var(--fs-sm);
-    color: var(--c-texto);
-    margin-bottom: 10px
-}
-
-.hab-card .acciones {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap
-}
-
-.badge {
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: var(--fs-sm);
-    font-weight: 700
-}
-
-.hab-card select {
-    padding: 7px 10px;
-    border: 1px solid var(--c-borde);
-    border-radius: 8px;
-    font-size: var(--fs-sm)
-}
-
-.hab-card .ver {
-    color: var(--c-primario);
-    font-weight: 600;
-    cursor: pointer;
-    font-size: var(--fs-sm)
-}
+.hab-lista{display:flex;flex-direction:column;gap:var(--sp-3);max-height:70vh;overflow:auto}
+.hab-card{background:#fff;border-radius:14px;box-shadow:var(--sombra);padding:var(--sp-3)}
+.hab-card h3{color:var(--c-navy-texto);margin-bottom:2px}
+.hab-card .sub{font-size:var(--fs-sm);color:var(--c-texto-suave);font-style:italic}
+.hab-card .precio{margin:8px 0 4px;font-weight:700}
+.hab-card .desc{font-size:var(--fs-sm);color:var(--c-texto);margin-bottom:10px}
+.hab-card .acciones{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.badge{display:inline-block;padding:6px 12px;border-radius:8px;font-size:var(--fs-sm);font-weight:700}
+.hab-card select{padding:7px 10px;border:1px solid var(--c-borde);border-radius:8px;font-size:var(--fs-sm)}
+.hab-card .ver{color:var(--c-primario);font-weight:600;cursor:pointer;font-size:var(--fs-sm)}
 
 /* Calendario semanal */
-.cal {
-    background: #fff;
-    border-radius: 14px;
-    box-shadow: var(--sombra);
-    overflow: hidden
-}
-
-.cal__head, .cal__row {
-    display: grid;
-    grid-template-columns:110px repeat(7, 1fr)
-}
-
-.cal__head {
-    background: #f4f4f8;
-    border-bottom: 1px solid var(--c-borde)
-}
-
-.cal__head .cell {
-    padding: 10px 8px;
-    text-align: center;
-    border-left: 1px solid var(--c-borde)
-}
-
-.cal__head .cell small {
-    display: block;
-    color: var(--c-texto-suave);
-    font-weight: 600
-}
-
-.cal__head .cell b {
-    font-size: var(--fs-lg);
-    color: var(--c-navy-texto)
-}
-
-.cal__row {
-    position: relative;
-    min-height: 64px;
-    border-bottom: 1px solid var(--c-borde)
-}
-
-.cal__row .lbl {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    color: var(--c-navy-texto);
-    border-right: 1px solid var(--c-borde)
-}
-
-.cal__row .day {
-    border-left: 1px solid #eef0f4
-}
-
-.cal__bar {
-    grid-row: 1;
-    align-self: center;
-    margin: 6px;
-    border-radius: 10px;
-    padding: 8px 12px;
-    z-index: 2;
-    overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, .18)
-}
-
-.cal__bar b {
-    display: block;
-    font-size: var(--fs-sm);
-    line-height: 1.1
-}
-
-.cal__bar span {
-    font-size: 11px;
-    opacity: .95
-}
-
-.cal__vacio {
-    padding: var(--sp-4);
-    text-align: center;
-    color: var(--c-texto-suave)
-}
+.cal{background:#fff;border-radius:14px;box-shadow:var(--sombra);overflow:hidden}
+.cal__head,.cal__row{display:grid;grid-template-columns:110px repeat(7,1fr)}
+.cal__head{background:#f4f4f8;border-bottom:1px solid var(--c-borde)}
+.cal__head .cell{padding:10px 8px;text-align:center;border-left:1px solid var(--c-borde)}
+.cal__head .cell small{display:block;color:var(--c-texto-suave);font-weight:600}
+.cal__head .cell b{font-size:var(--fs-lg);color:var(--c-navy-texto)}
+.cal__row{position:relative;min-height:64px;border-bottom:1px solid var(--c-borde)}
+.cal__row .lbl{display:flex;align-items:center;justify-content:center;font-weight:700;
+  color:var(--c-navy-texto);border-right:1px solid var(--c-borde)}
+.cal__row .day{border-left:1px solid #eef0f4}
+.cal__bar{grid-row:1;align-self:center;margin:6px;border-radius:10px;padding:8px 12px;
+  z-index:2;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+.cal__bar b{display:block;font-size:var(--fs-sm);line-height:1.1}
+.cal__bar span{font-size:11px;opacity:.95}
+.cal__vacio{padding:var(--sp-4);text-align:center;color:var(--c-texto-suave)}
 
 /* Responsive estado de habitaciones */
-@media (max-width: 760px) {
-    .filtros {
-        flex-direction: column;
-        align-items: stretch
-    }
-
-    .filtro select {
-        min-width: 0;
-        width: 100%
-    }
-
-    .filtro--semana {
-        margin-left: 0
-    }
-
-    .hab-lista {
-        max-height: none
-    }
-
-    .cal {
-        overflow-x: auto
-    }
-
-    .cal__head, .cal__row {
-        min-width: 640px
-    }
+@media (max-width:760px){
+  .filtros{flex-direction:column;align-items:stretch}
+  .filtro select{min-width:0;width:100%}
+  .filtro--semana{margin-left:0}
+  .hab-lista{max-height:none}
+  .cal{overflow-x:auto}
+  .cal__head,.cal__row{min-width:640px}
 }
