@@ -13,7 +13,12 @@
 </head>
 
 <!-- ============ TOPBAR ============ -->
-<header th:fragment="topbar(titulo)" class="topbar" th:text="${titulo}">BIENVENIDO</header>
+<header th:fragment="topbar(titulo)" class="topbar">
+    <button type="button" class="topbar__menu" aria-label="Abrir menú"
+            onclick="document.body.classList.toggle('nav-open')">&#9776;</button>
+    <span class="topbar__titulo" th:text="${titulo}">BIENVENIDO</span>
+    <span class="nav-overlay" onclick="document.body.classList.remove('nav-open')"></span>
+</header>
 
 <!-- ============ SIDEBAR ============ -->
 <aside th:fragment="sidebar(activo)" class="sidebar">
