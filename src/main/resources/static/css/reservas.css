@@ -71,3 +71,18 @@
   justify-content:center;z-index:50;padding:var(--sp-4)}
 .modal-card{background:#fff;border-radius:18px;padding:var(--sp-5);max-width:820px;width:100%;
   max-height:90vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+
+/* ---- Comprobante de reserva ---- */
+.ic-print{background:#1971c2}
+.btn-anular{background:#e8590c;color:#fff;border:none;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer}
+.btn-anular:hover{background:#d9480f}
+.pago-cli{background:var(--c-lavanda);border-radius:10px;padding:10px 12px;margin-bottom:10px}
+.pago-tabla{width:100%;border-collapse:collapse;font-size:var(--fs-sm)}
+.pago-tabla td{padding:7px 6px;border-bottom:1px solid var(--c-borde);vertical-align:top}
+.pago-tabla td.sub{color:var(--c-texto-suave)}
+.pago-tabla td.imp{text-align:right;white-space:nowrap;font-weight:600}
+.pago-tabla tr.sep td{background:#f3f4f8;font-weight:700;color:var(--c-texto);text-align:center}
+.pago-tot{margin-top:12px;display:flex;flex-direction:column;gap:5px}
+.pago-tot div{display:flex;justify-content:space-between;color:var(--c-texto-suave)}
+.pago-tot .grande{font-size:var(--fs-lg);color:var(--c-texto)}
+.pago-tot .grande b{color:#2f9e44}

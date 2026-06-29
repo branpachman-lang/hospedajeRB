@@ -47,6 +47,24 @@
         </div>
     </div>
 </div>
+
+<!-- Modal: Generar Comprobante -->
+<div id="modal-pago" class="modal-bg" style="display:none">
+    <div class="modal-card">
+        <h2 class="seccion" style="text-align:center">Generar Comprobante</h2>
+        <div id="pago-resumen"></div>
+        <div class="form-grid" style="margin-top:14px">
+            <div class="campo2"><label>Tipo de comprobante</label><select id="pago-tipo"></select><small class="err" id="e-pago-tipo"></small></div>
+            <div class="campo2"><label>Forma de pago</label><select id="pago-forma"></select></div>
+        </div>
+        <div class="acciones-form">
+            <button type="button" id="pago-emitir" class="btn-verde">✔ Emitir e Imprimir</button>
+            <button type="button" id="pago-cancelar" class="btn-rojo">✖ Cancelar</button>
+        </div>
+    </div>
+</div>
+
 <script th:src="@{/js/reservas-lista.js}"></script>
+<script th:src="@{/js/comprobante.js}"></script>
 </body>
 </html>

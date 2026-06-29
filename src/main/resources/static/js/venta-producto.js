@@ -1,291 +1,217 @@
 (function () {
   "use strict";
-
-  var csrfToken = document.querySelector('meta[name="_csrf"]').content;
+  var csrfToken  = document.querySelector('meta[name="_csrf"]').content;
   var csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-  var productos = [];
-  var carrito = new Map();
-  var categoriaActual = "";
-  var reservaActual = null;
-  var debounce = 0;
 
-  function $(id) { return document.getElementById(id); }
-  function money(n) { return "S/ " + (Number(n || 0)).toFixed(2); }
-  function initials(name) {
-    return String(name || "P").split(/\s+/).filter(Boolean).slice(0, 2).map(function (x) { return x[0]; }).join("").toUpperCase();
-  }
-  function headersJson() {
-    var h = { "Content-Type": "application/json" };
-    h[csrfHeader] = csrfToken;
-    return h;
-  }
+  var cart = [];          // {idProducto, nombre, precio, cantidad, stock}
+  var reservaSel = null;  // {idReserva, ...}
 
-  function cargarProductos() {
-    var q = $("buscar-producto").value.trim();
-    var params = new URLSearchParams();
-    if (categoriaActual) params.set("categoriaId", categoriaActual);
-    if (q) params.set("q", q);
-    fetch("/recepcionista/api/venta-producto/productos?" + params.toString())
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        productos = data || [];
-        renderProductos();
-        renderCarrito();
-      })
-      .catch(function () {
-        $("productos").innerHTML = "";
-        $("productos-vacio").hidden = false;
+  function money(n){ return "S/ " + (Number(n)||0).toFixed(2); }
+  function debounce(fn, ms){ var t; return function(){ var a=arguments,c=this; clearTimeout(t); t=setTimeout(function(){fn.apply(c,a);}, ms); }; }
+
+  // ---------- formas de pago ----------
+  function cargarFormas(){
+    fetch("/recepcionista/api/venta-producto/formas-pago")
+      .then(function(r){return r.json();})
+      .then(function(lista){
+        var sel = document.getElementById("f-formapago");
+        sel.innerHTML = "";
+        lista.forEach(function(f){
+          var o = document.createElement("option");
+          o.value = f.idFormaPago; o.textContent = f.nombrePago;
+          o.dataset.nombre = f.nombrePago;
+          sel.appendChild(o);
+        });
+        sel.onchange = toggleOperacion;
+        toggleOperacion();
       });
   }
+  function formaEsEfectivo(){
+    var sel = document.getElementById("f-formapago");
+    var opt = sel.selectedOptions[0];
+    return !opt || /efectivo/i.test(opt.dataset.nombre || opt.textContent);
+  }
+  function toggleOperacion(){
+    var mostrar = !formaEsEfectivo();
+    document.getElementById("lbl-operacion").style.display = mostrar ? "block" : "none";
+    var inp = document.getElementById("f-operacion");
+    inp.style.display = mostrar ? "block" : "none";
+    if(!mostrar) inp.value = "";
+  }
 
-  function renderProductos() {
-    var cont = $("productos");
-    var empty = $("productos-vacio");
+  // ---------- catalogo ----------
+  function cargarProductos(){
+    var cat = document.getElementById("f-categoria").value;
+    var q   = document.getElementById("f-buscar").value.trim();
+    var url = "/recepcionista/api/venta-producto/productos?";
+    if(cat) url += "categoriaId="+encodeURIComponent(cat)+"&";
+    if(q)   url += "q="+encodeURIComponent(q);
+    fetch(url).then(function(r){return r.json();}).then(renderProductos);
+  }
+
+  function renderProductos(lista){
+    var cont = document.getElementById("productos");
     cont.innerHTML = "";
-    empty.hidden = productos.length > 0;
-    productos.forEach(function (p) {
-      var cantidad = carrito.get(p.idProducto) || 0;
-      var sinStock = Number(p.stock) <= 0;
-      var excedido = cantidad > Number(p.stock);
-      var card = document.createElement("article");
-      card.className = "producto-card" + (sinStock || excedido ? " sin-stock" : "");
+    document.getElementById("prod-vacio").style.display = lista.length ? "none" : "block";
+    lista.forEach(function(p){
+      var card = document.createElement("div");
+      card.className = "prod-card" + (p.disponible ? "" : " agotado");
       card.innerHTML =
-        '<span class="stock-badge ' + (p.stockBajo ? "bajo" : "") + '">' + (sinStock ? "Sin stock" : "Stock: " + p.stock) + '</span>' +
-        '<div class="producto-img">' + initials(p.nombreProducto) + '</div>' +
-        '<div class="producto-info">' +
-          '<span class="producto-cat">' + (p.nombreCategoria || "Producto") + '</span>' +
-          '<h3>' + p.nombreProducto + '</h3>' +
-          (sinStock ? '<div class="sin-stock-msg">No hay stock del producto</div>' : '') +
-          (excedido ? '<div class="sin-stock-msg">Stock insuficiente. Disponible: ' + p.stock + '</div>' : '') +
-          '<div class="producto-bottom"><span class="precio">' + money(p.precioActual) + '</span>' +
-          '<button class="btn-add" type="button" ' + (sinStock ? "disabled" : "") + ' title="Agregar al carrito">+</button></div>' +
-        '</div>';
-      card.querySelector(".btn-add").onclick = function () {
-        carrito.set(p.idProducto, cantidad + 1);
-        renderProductos();
-        renderCarrito();
-      };
+        '<div class="prod-cat">'+p.nombreCategoria+'</div>'+
+        '<div class="prod-nom">'+p.nombreProducto+'</div>'+
+        '<div class="prod-pie">'+
+          '<span class="prod-precio">'+money(p.precioActual)+'</span>'+
+          '<span class="prod-stock'+(p.stockBajo?' bajo':'')+'">Stock: '+p.stock+'</span>'+
+        '</div>'+
+        '<button class="btn-add" '+(p.disponible?'':'disabled')+'>'+(p.disponible?'＋ Agregar':'Agotado')+'</button>';
+      var btn = card.querySelector(".btn-add");
+      if(p.disponible) btn.onclick = function(){ agregar(p); };
       cont.appendChild(card);
     });
   }
 
-  function productoPorId(id) {
-    return productos.find(function (p) { return Number(p.idProducto) === Number(id); });
+  // ---------- carrito ----------
+  function agregar(p){
+    var it = cart.find(function(x){ return x.idProducto===p.idProducto; });
+    if(it){
+      if(it.cantidad+1 > p.stock){ alert("No hay más stock de "+p.nombreProducto+" (máx "+p.stock+")."); return; }
+      it.cantidad++;
+    } else {
+      cart.push({ idProducto:p.idProducto, nombre:p.nombreProducto, precio:Number(p.precioActual), cantidad:1, stock:p.stock });
+    }
+    renderCart();
   }
-
-  function renderCarrito() {
-    var cont = $("cart-items");
-    var empty = $("cart-empty");
+  function cambiar(idx, delta){
+    var it = cart[idx];
+    var nuevo = it.cantidad + delta;
+    if(nuevo <= 0){ cart.splice(idx,1); renderCart(); return; }
+    if(nuevo > it.stock){ alert("Stock máximo: "+it.stock+"."); return; }
+    it.cantidad = nuevo; renderCart();
+  }
+  function renderCart(){
+    var cont = document.getElementById("cart-items");
     cont.innerHTML = "";
-    var entries = Array.from(carrito.entries());
-    empty.hidden = entries.length > 0;
-    $("cart-count").textContent = entries.reduce(function (acc, it) { return acc + it[1]; }, 0) + " items";
-
-    var total = 0;
-    var invalid = false;
-
-    entries.forEach(function (entry) {
-      var id = entry[0], cantidad = entry[1];
-      var p = productoPorId(id);
-      if (!p) return;
-      var excedido = cantidad > Number(p.stock);
-      if (excedido) invalid = true;
-      var linea = Number(p.precioActual) * cantidad;
-      total += linea;
-
-      var div = document.createElement("div");
-      div.className = "cart-line" + (excedido ? " error" : "");
-      div.innerHTML =
-        '<div>' +
-          '<div class="cart-title">' + p.nombreProducto + '</div>' +
-          '<div class="cart-small">Precio Unit: ' + money(p.precioActual) + '</div>' +
-          '<div class="cart-actions">' +
-            '<button class="qty-btn menos" type="button">-</button>' +
-            '<strong>' + cantidad + '</strong>' +
-            '<button class="qty-btn mas" type="button">+</button>' +
-            '<button class="trash-btn" type="button" title="Quitar">Quitar</button>' +
-          '</div>' +
-          (excedido ? '<div class="line-error">Supera el stock disponible (' + p.stock + ')</div>' : '') +
-        '</div>' +
-        '<div class="line-total">' + money(linea) + '</div>';
-      div.querySelector(".menos").onclick = function () {
-        if (cantidad <= 1) carrito.delete(id);
-        else carrito.set(id, cantidad - 1);
-        renderProductos(); renderCarrito();
-      };
-      div.querySelector(".mas").onclick = function () {
-        carrito.set(id, cantidad + 1);
-        renderProductos(); renderCarrito();
-      };
-      div.querySelector(".trash-btn").onclick = function () {
-        carrito.delete(id);
-        renderProductos(); renderCarrito();
-      };
-      cont.appendChild(div);
+    document.getElementById("cart-vacio").style.display = cart.length ? "none" : "block";
+    cart.forEach(function(it, idx){
+      var row = document.createElement("div");
+      row.className = "cart-row";
+      row.innerHTML =
+        '<div class="cart-info"><strong>'+it.nombre+'</strong><small>'+money(it.precio)+' c/u</small></div>'+
+        '<div class="cart-qty">'+
+          '<button class="qbtn" data-d="-1">−</button>'+
+          '<span>'+it.cantidad+'</span>'+
+          '<button class="qbtn" data-d="1">＋</button>'+
+        '</div>'+
+        '<div class="cart-sub">'+money(it.precio*it.cantidad)+'</div>'+
+        '<button class="cart-del" title="Quitar">✖</button>';
+      row.querySelectorAll(".qbtn").forEach(function(b){ b.onclick=function(){ cambiar(idx, parseInt(b.dataset.d,10)); }; });
+      row.querySelector(".cart-del").onclick = function(){ cart.splice(idx,1); renderCart(); };
+      cont.appendChild(row);
     });
-
-    var subtotal = total / 1.18;
-    var igv = total - subtotal;
-    $("subtotal").textContent = money(subtotal);
-    $("igv").textContent = money(igv);
-    $("total").textContent = money(total);
-    $("stock-alert").hidden = !invalid;
-    $("btn-finalizar").disabled = !entries.length || invalid;
-    $("btn-cargo").disabled = !entries.length || invalid || !reservaActual;
+    var total = cart.reduce(function(s,it){ return s + it.precio*it.cantidad; }, 0);
+    var subtotal = total/1.18, igv = total - subtotal;
+    document.getElementById("t-subtotal").textContent = money(subtotal);
+    document.getElementById("t-igv").textContent = money(igv);
+    document.getElementById("t-total").textContent = money(total);
   }
 
-  function buscarReservas(q) {
-    if (!q || q.length < 2) {
-      $("resultados-reserva").hidden = true;
-      $("resultados-reserva").innerHTML = "";
-      return;
-    }
-    fetch("/recepcionista/api/venta-producto/reservas?q=" + encodeURIComponent(q))
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        var box = $("resultados-reserva");
+  // ---------- reserva (cargar a habitacion) ----------
+  document.getElementById("chk-habitacion").onchange = function(){
+    var on = this.checked;
+    document.getElementById("box-reserva").style.display = on ? "block" : "none";
+    document.getElementById("box-pago").style.display    = on ? "none" : "block";
+    if(!on){ reservaSel=null; pintarReservaSel(); }
+  };
+  var buscarReserva = debounce(function(){
+    var q = document.getElementById("f-reserva").value.trim();
+    var box = document.getElementById("reserva-result");
+    if(q.length < 2){ box.innerHTML=""; return; }
+    fetch("/recepcionista/api/venta-producto/reservas?q="+encodeURIComponent(q))
+      .then(function(r){return r.json();})
+      .then(function(lista){
         box.innerHTML = "";
-        if (!data.length) {
-          box.innerHTML = '<div class="reserva-seleccionada">No se encontraron reservas activas.</div>';
-          box.hidden = false;
-          return;
-        }
-        data.forEach(function (res) {
-          var btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "reserva-result";
-          btn.innerHTML =
-            '<strong>Habitacion ' + res.habitacion + ' - ' + res.cliente + '</strong>' +
-            '<div class="reserva-meta"><span>Codigo: ' + (res.codigoReserva || res.idReserva) + '</span><span>' + res.fechaIngreso + ' / ' + res.fechaSalida + '</span><span>' + res.tipoHabitacion + '</span></div>';
-          btn.onclick = function () {
-            reservaActual = res;
-            $("resultados-reserva").hidden = true;
-            $("buscar-reserva").value = "";
-            renderReserva();
-            renderCarrito();
-          };
-          box.appendChild(btn);
+        if(!lista.length){ box.innerHTML='<div class="reserva-empty">Sin coincidencias</div>'; return; }
+        lista.forEach(function(r){
+          var d = document.createElement("div");
+          d.className = "reserva-opt";
+          d.innerHTML = '<strong>N° '+(r.codigoReserva||r.idReserva)+'</strong> · Hab. '+r.habitacion+' · '+r.cliente;
+          d.onclick = function(){ reservaSel = r; box.innerHTML=""; document.getElementById("f-reserva").value=""; pintarReservaSel(); };
+          box.appendChild(d);
         });
-        box.hidden = false;
       });
+  }, 300);
+  document.getElementById("f-reserva").addEventListener("input", buscarReserva);
+  function pintarReservaSel(){
+    var c = document.getElementById("reserva-sel");
+    if(!reservaSel){ c.style.display="none"; c.innerHTML=""; return; }
+    c.style.display="block";
+    c.innerHTML = '<div>Reserva <strong>N° '+(reservaSel.codigoReserva||reservaSel.idReserva)+'</strong><br>'+
+                  'Hab. '+reservaSel.habitacion+' · '+reservaSel.cliente+'</div>'+
+                  '<button type="button" class="cart-del" id="quitar-res">✖</button>';
+    document.getElementById("quitar-res").onclick = function(){ reservaSel=null; pintarReservaSel(); };
   }
 
-  function renderReserva() {
-    var panel = $("reserva-seleccionada");
-    if (!reservaActual) {
-      panel.hidden = true;
-      panel.innerHTML = "";
-      $("venta-contexto").textContent = "VENTA DIRECTA";
-      $("cliente-titulo").textContent = "Cliente Externo (Generico)";
-      $("cliente-subtitulo").textContent = "Documento: 00000000";
-      $("btn-cliente-externo").classList.add("activo");
-      return;
+  // ---------- confirmar ----------
+  document.getElementById("btn-confirmar").onclick = function(){
+    if(!cart.length){ alert("Agrega al menos un producto."); return; }
+    var cargar = document.getElementById("chk-habitacion").checked;
+    if(cargar && !reservaSel){ alert("Selecciona una reserva para cargar a la habitación."); return; }
+
+    var idFormaPago = null, numOp = null;
+    if(!cargar){
+      var selFp = document.getElementById("f-formapago");
+      idFormaPago = selFp.value ? parseInt(selFp.value, 10) : null;
+      if(!formaEsEfectivo()) numOp = document.getElementById("f-operacion").value.trim() || null;
     }
-    $("btn-cliente-externo").classList.remove("activo");
-    $("venta-contexto").textContent = "HUESPED";
-    $("cliente-titulo").textContent = reservaActual.cliente;
-    $("cliente-subtitulo").textContent = "Habitacion " + reservaActual.habitacion + " - " + reservaActual.tipoHabitacion;
-    var huespedes = Array.isArray(reservaActual.huespedes) ? reservaActual.huespedes : [];
-    panel.innerHTML =
-      '<strong>Venta vinculada a habitacion ' + reservaActual.habitacion + '</strong>' +
-      '<div class="reserva-meta"><span>Cliente: ' + reservaActual.cliente + '</span><span>Ingreso: ' + reservaActual.fechaIngreso + '</span><span>Salida: ' + reservaActual.fechaSalida + '</span><span>Tipo: ' + reservaActual.tipoHabitacion + '</span></div>' +
-      '<div class="reserva-huespedes"><strong>Huespedes</strong>' +
-      (huespedes.length ? '<ul>' + huespedes.map(function (h) { return '<li>' + h + '</li>'; }).join('') + '</ul>' : '<p>Sin huespedes registrados.</p>') +
-      '</div>';
-    panel.hidden = false;
-  }
-
-  function confirmar(cargarAHabitacion) {
-    var items = Array.from(carrito.entries()).map(function (entry) {
-      return { idProducto: Number(entry[0]), cantidad: Number(entry[1]) };
-    });
-    fetch("/recepcionista/api/venta-producto/confirmar", {
-      method: "POST",
-      headers: headersJson(),
-      body: JSON.stringify({
-        idReserva: reservaActual ? reservaActual.idReserva : null,
-        cargarAHabitacion: !!cargarAHabitacion,
-        items: items
-      })
-    })
-      .then(function (r) {
-        return r.json().then(function (body) { return { ok: r.ok, body: body }; });
-      })
-      .then(function (res) {
-        if (!res.ok) throw new Error(res.body.mensaje || "No se pudo registrar la venta.");
-        mostrarExito(res.body.comprobante);
-      })
-      .catch(function (e) { alert(e.message); cargarProductos(); });
-  }
-
-  function mostrarExito(comp) {
-    $("mensaje-inventario").textContent = comp.cargadoHabitacion
-      ? "Cargo registrado a la habitacion e inventario actualizado"
-      : "Inventario actualizado y pago verificado";
-    $("ticket").innerHTML = renderTicket(comp);
-    $("modal-exito").hidden = false;
-    carrito.clear();
-  }
-
-  function renderTicket(comp) {
-    var reserva = comp.reserva;
-    var items = (comp.items || []).map(function (i) {
-      return '<div class="ticket-row"><span>' + i.producto + ' x' + i.cantidad + '</span><strong>' + money(i.total) + '</strong></div>';
-    }).join("");
-    return '' +
-      '<h3>BOLOGNESI REAL</h3>' +
-      '<p style="text-align:center">RUC: 20123456789<br>Calle Bolognesi 456 - Tacna</p><hr>' +
-      '<div class="ticket-row"><strong>BOLETA ELECTRONICA</strong><strong>' + comp.serie + '-' + comp.numeroComprobante + '</strong></div>' +
-      '<div class="ticket-row"><span>Fecha:</span><span>' + String(comp.fechaEmision).replace("T", " ").slice(0, 16) + '</span></div>' +
-      (reserva ? '<div class="ticket-reserva"><strong>Reserva / Huesped</strong><br>Cliente: ' + reserva.cliente + '<br>Huespedes: ' + ((reserva.huespedes || []).join(", ") || "Sin huespedes registrados") + '<br>Habitacion: ' + reserva.habitacion + ' - ' + reserva.tipoHabitacion + '<br>Ingreso: ' + reserva.fechaIngreso + '<br>Salida: ' + reserva.fechaSalida + '<br>Caracteristicas: ' + (reserva.descripcionHabitacion || "Sin descripcion") + '</div>' : '') +
-      '<hr>' + items + '<hr>' +
-      '<div class="ticket-row"><span>SUBTOTAL:</span><strong>' + money(comp.subtotal) + '</strong></div>' +
-      '<div class="ticket-row"><span>IGV (18%):</span><strong>' + money(comp.igv) + '</strong></div>' +
-      '<div class="ticket-row ticket-total"><span>TOTAL:</span><strong>' + money(comp.total) + '</strong></div>' +
-      '<div style="height:90px;background:#eee;display:grid;place-items:center;margin:26px auto 10px;width:110px">QR</div>' +
-      '<p style="text-align:center;font-size:10px">Representacion impresa de la boleta. Gracias por su compra.</p>';
-  }
-
-  document.querySelectorAll(".tab-categoria").forEach(function (btn) {
-    btn.onclick = function () {
-      document.querySelectorAll(".tab-categoria").forEach(function (b) { b.classList.remove("activo"); });
-      btn.classList.add("activo");
-      categoriaActual = btn.dataset.id || "";
-      cargarProductos();
+    var dto = {
+      idReserva: reservaSel ? reservaSel.idReserva : null,
+      cargarAHabitacion: cargar,
+      idFormaPago: idFormaPago,
+      numeroOperacion: numOp,
+      items: cart.map(function(it){ return { idProducto: it.idProducto, cantidad: it.cantidad }; })
     };
-  });
-  $("buscar-producto").addEventListener("input", function () {
-    clearTimeout(debounce);
-    debounce = setTimeout(cargarProductos, 260);
-  });
-  $("buscar-reserva").addEventListener("input", function () {
-    var q = this.value.trim();
-    clearTimeout(debounce);
-    debounce = setTimeout(function () { buscarReservas(q); }, 260);
-  });
-  $("btn-cliente-externo").onclick = function () {
-    reservaActual = null;
-    renderReserva();
-    renderCarrito();
-  };
-  $("btn-finalizar").onclick = function () { confirmar(false); };
-  $("btn-cargo").onclick = function () { confirmar(true); };
-  $("btn-cancelar").onclick = function () {
-    carrito.clear();
-    reservaActual = null;
-    renderReserva();
-    renderProductos();
-    renderCarrito();
-  };
-  $("btn-imprimir").onclick = function () { window.print(); };
-  $("btn-correo").onclick = function () { alert("Envio por correo pendiente de integracion SMTP del comprobante."); };
-  $("btn-nueva-venta").onclick = function () {
-    $("modal-exito").hidden = true;
-    reservaActual = null;
-    renderReserva();
-    cargarProductos();
+    var headers = { "Content-Type":"application/json" }; headers[csrfHeader]=csrfToken;
+    var btn = this; btn.disabled = true;
+    fetch("/recepcionista/api/venta-producto/confirmar", { method:"POST", headers:headers, body:JSON.stringify(dto) })
+      .then(function(r){ return r.json().then(function(b){ return {ok:r.ok, body:b}; }); })
+      .then(function(res){
+        btn.disabled = false;
+        if(!res.ok || !res.body.ok) throw new Error((res.body && res.body.mensaje) || "No se pudo registrar la venta");
+        mostrarComprobante(res.body.comprobante);
+      })
+      .catch(function(e){ btn.disabled=false; alert(e.message); });
   };
 
-  renderReserva();
+  function mostrarComprobante(c){
+    var filas = (c.items||[]).map(function(i){
+      return '<tr><td>'+i.producto+'</td><td>'+i.cantidad+'</td><td>'+money(i.precioUnitario)+'</td><td>'+money(i.total)+'</td></tr>';
+    }).join("");
+    var body = document.getElementById("comp-body");
+    body.innerHTML =
+      '<div class="comp-head">'+c.serie+'-'+c.numeroComprobante+
+        (c.cargadoHabitacion ? ' · <span class="tag">Cargado a habitación</span>' : '')+'</div>'+
+      (c.reserva ? '<div class="comp-res">Reserva N° '+(c.reserva.codigoReserva||c.reserva.idReserva)+' · '+c.reserva.cliente+'</div>' : '')+
+      '<table class="comp-tabla"><thead><tr><th>Producto</th><th>Cant.</th><th>P. Unit.</th><th>Total</th></tr></thead><tbody>'+filas+'</tbody></table>'+
+      '<div class="comp-tot"><div><span>Subtotal</span><b>'+money(c.subtotal)+'</b></div>'+
+        '<div><span>IGV</span><b>'+money(c.igv)+'</b></div>'+
+        '<div class="total-final"><span>Total</span><b>'+money(c.total)+'</b></div></div>';
+    document.getElementById("modal-comp").style.display = "flex";
+  }
+  document.getElementById("comp-cerrar").onclick = function(){
+    document.getElementById("modal-comp").style.display = "none";
+    cart = []; reservaSel = null;
+    document.getElementById("chk-habitacion").checked = false;
+    document.getElementById("box-reserva").style.display = "none";
+    document.getElementById("box-pago").style.display = "block";
+    document.getElementById("f-operacion").value = "";
+    toggleOperacion();
+    pintarReservaSel(); renderCart(); cargarProductos();
+  };
+
+  // ---------- init ----------
+  document.getElementById("f-categoria").onchange = cargarProductos;
+  document.getElementById("f-buscar").addEventListener("input", debounce(cargarProductos, 300));
   cargarProductos();
+  cargarFormas();
+  renderCart();
 })();

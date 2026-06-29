@@ -49,6 +49,10 @@ public class Comprobante {
     private LocalDateTime fechaEmision;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_comprobante_origen")
+    private Comprobante comprobanteOrigen;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_estado_comprobante", nullable = false)
     private EstadoComprobante estadoComprobante;
 }

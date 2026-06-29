@@ -6,6 +6,7 @@ import pe.com.hospedajeRB.reservas.entity.Reserva;
 import pe.com.hospedajeRB.ventaproducto.dto.*;
 import pe.com.hospedajeRB.ventaproducto.entity.*;
 import pe.com.hospedajeRB.ventaproducto.repository.*;
+import pe.com.hospedajeRB.comprobantes.service.ComprobanteNumeracion;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -30,6 +31,7 @@ public class VentaProductoService {
     private final ComprobanteVentaRepository comprobanteRepo;
     private final PagoVentaRepository pagoRepo;
     private final CargoProductoVentaRepository cargoRepo;
+    private final ComprobanteNumeracion numeracion;
 
     public VentaProductoService(CategoriaVentaRepository categoriaRepo,
                                 ProductoVentaRepository productoRepo,
@@ -42,7 +44,8 @@ public class VentaProductoService {
                                 FormaPagoVentaRepository formaPagoRepo,
                                 ComprobanteVentaRepository comprobanteRepo,
                                 PagoVentaRepository pagoRepo,
-                                CargoProductoVentaRepository cargoRepo) {
+                                CargoProductoVentaRepository cargoRepo,
+                                ComprobanteNumeracion numeracion) {
         this.categoriaRepo = categoriaRepo;
         this.productoRepo = productoRepo;
         this.reservaRepo = reservaRepo;
@@ -55,6 +58,7 @@ public class VentaProductoService {
         this.comprobanteRepo = comprobanteRepo;
         this.pagoRepo = pagoRepo;
         this.cargoRepo = cargoRepo;
+        this.numeracion = numeracion;
     }
 
     @Transactional(readOnly = true)
@@ -144,7 +148,7 @@ public class VentaProductoService {
         comprobante.setTipoComprobante(tipo);
         comprobante.setTurno(turno);
         comprobante.setSerie(SERIE_BOLETA);
-        comprobante.setNumeroComprobante(siguienteNumero(SERIE_BOLETA));
+        comprobante.setNumeroComprobante(numeracion.siguienteNumero(SERIE_BOLETA));
         comprobante.setTotalPagar(total);
         comprobante.setFechaEmision(LocalDateTime.now());
         comprobante.setEstadoComprobante(estadoComprobante);
@@ -219,17 +223,6 @@ public class VentaProductoService {
         return estadoCargoRepo.buscarPorNombre("Facturado")
                 .orElseGet(() -> estadoCargoRepo.buscarPorNombre("Vendido")
                         .orElseThrow(() -> new IllegalStateException("Falta un estado de cargo 'Facturado' o 'Vendido'.")));
-    }
-
-    private String siguienteNumero(String serie) {
-        String ultimo = comprobanteRepo.ultimoNumero(serie);
-        long valor;
-        try {
-            valor = Long.parseLong(ultimo);
-        } catch (NumberFormatException ignored) {
-            valor = 0;
-        }
-        return String.format("%08d", valor + 1);
     }
 
     private ProductoVentaDTO toProductoDTO(Producto p) {
