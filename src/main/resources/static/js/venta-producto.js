@@ -5,6 +5,7 @@
 
   var cart = [];          // {idProducto, nombre, precio, cantidad, stock}
   var reservaSel = null;  // {idReserva, ...}
+  var ultimaVenta = null; // resultado de la ultima venta confirmada
 
   function money(n){ return "S/ " + (Number(n)||0).toFixed(2); }
   function debounce(fn, ms){ var t; return function(){ var a=arguments,c=this; clearTimeout(t); t=setTimeout(function(){fn.apply(c,a);}, ms); }; }
@@ -183,22 +184,35 @@
   };
 
   function mostrarComprobante(c){
+    ultimaVenta = c;
     var filas = (c.items||[]).map(function(i){
       return '<tr><td>'+i.producto+'</td><td>'+i.cantidad+'</td><td>'+money(i.precioUnitario)+'</td><td>'+money(i.total)+'</td></tr>';
     }).join("");
+    // titulo y encabezado segun el tipo de venta
+    var titulo = c.cargadoHabitacion ? "Consumo cargado a la reserva" : "Comprobante emitido";
+    document.querySelector("#modal-comp .seccion").textContent = titulo;
+    var encabezado = c.cargadoHabitacion
+      ? (c.reserva ? 'Reserva N° '+(c.reserva.codigoReserva||c.reserva.idReserva)+' · '+c.reserva.cliente : 'Cargado a la reserva')
+      : (c.serie+'-'+c.numeroComprobante);
+    var nota = c.cargadoHabitacion
+      ? '<div class="comp-res">Se facturará al pagar la reserva. No se emite boleta aparte.</div>'
+      : (c.reserva ? '<div class="comp-res">Reserva N° '+(c.reserva.codigoReserva||c.reserva.idReserva)+' · '+c.reserva.cliente+'</div>' : '');
     var body = document.getElementById("comp-body");
     body.innerHTML =
-      '<div class="comp-head">'+c.serie+'-'+c.numeroComprobante+
-        (c.cargadoHabitacion ? ' · <span class="tag">Cargado a habitación</span>' : '')+'</div>'+
-      (c.reserva ? '<div class="comp-res">Reserva N° '+(c.reserva.codigoReserva||c.reserva.idReserva)+' · '+c.reserva.cliente+'</div>' : '')+
+      '<div class="comp-head">'+encabezado+'</div>'+ nota +
       '<table class="comp-tabla"><thead><tr><th>Producto</th><th>Cant.</th><th>P. Unit.</th><th>Total</th></tr></thead><tbody>'+filas+'</tbody></table>'+
       '<div class="comp-tot"><div><span>Subtotal</span><b>'+money(c.subtotal)+'</b></div>'+
         '<div><span>IGV</span><b>'+money(c.igv)+'</b></div>'+
         '<div class="total-final"><span>Total</span><b>'+money(c.total)+'</b></div></div>';
+    document.getElementById("comp-cerrar").textContent = c.cargadoHabitacion ? "Aceptar" : "Aceptar e imprimir";
     document.getElementById("modal-comp").style.display = "flex";
   }
   document.getElementById("comp-cerrar").onclick = function(){
     document.getElementById("modal-comp").style.display = "none";
+    if(ultimaVenta && !ultimaVenta.cargadoHabitacion && ultimaVenta.idComprobante){
+      window.open("/recepcionista/comprobante/"+ultimaVenta.idComprobante+"/ticket", "_blank");
+    }
+    ultimaVenta = null;
     cart = []; reservaSel = null;
     document.getElementById("chk-habitacion").checked = false;
     document.getElementById("box-reserva").style.display = "none";
